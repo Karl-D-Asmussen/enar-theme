@@ -74,7 +74,7 @@ function set-prompt {
   local green="%{$(truecolor-fg 0 255 0)%}"
   local blue="%{$(truecolor-fg 0 0 255)%}"
   local grey="%{$(truecolor-fg 100 100 100)%}"
-  local ltgrey="%{$(truecolor-fg 200 200 200)%}"
+  local ltgrey="%{$(truecolor-fg 150 150 150)%}"
   local ltblue="%{$(truecolor-fg 100 100 255)%}"
   local yellow="%{$(truecolor-fg 255 255 0)%}"
   local end="%{$reset_color%}"
@@ -82,8 +82,8 @@ function set-prompt {
   local blink="%{$(ansi-blinking)%}"
   local italic="%{$(ansi-italics)%}"
 
-  local time_fmt="[%D %*]"
-  local followup_type="→%_←"
+  local time_fmt="${ltgrey}[%D %*]$end"
+  local followup_type="$ltgrey→%_←$end"
 
   local prompt_header="  $ltred%n@%m$end  $ltblue%~$end" 
 
@@ -97,7 +97,7 @@ function set-prompt {
 		git_number="$(git diff --name-only | wc -l)"
     git_branch="$(git rev-parse --abbrev-ref HEAD)"
 		if [[ $git_number == 0 ]]; then
-			git_prompt="  $ltgrey* $git_branch$end"
+			git_prompt="  $ltgrey±0 $git_branch$end"
 		else
 			git_prompt="  $yellow±$git_number $git_branch$end"
 		fi
