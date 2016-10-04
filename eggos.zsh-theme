@@ -93,7 +93,7 @@ function set-prompt {
   local git_number=''
 	local git_prompt=''
   if test-git; then
-		git_number="$(git ls-files --modified --deleted --others | wc -l)"
+		git_number="$(git diff --name-only | wc -l)"
     git_branch="$(git rev-parse --abbrev-ref HEAD)"
 		if [[ $git_number == 0 ]]; then
 			git_prompt="  $grey* $git_branch$end"
