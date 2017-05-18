@@ -29,6 +29,7 @@ function test-git {
 function truecolor-fg {
   print -n -- "\E[38;2;${1};${2};${3}m"
 }
+
 function truecolor-bg {
   print -n -- "\E[48;2;${1};${2};${3}m"
 }
@@ -46,11 +47,11 @@ function cursor-underline {
 }
 
 function ansi-blinking {
-	print -n -- "\E[5m"
+  print -n -- "\E[5m"
 }
 
 function ansi-italics {
-	print -n -- "\E[3m"
+  print -n -- "\E[3m"
 }
 
 function zle-line-init zle-keymap-select zle-line-finish {
@@ -82,8 +83,8 @@ function set-prompt {
   local blink="%{$(ansi-blinking)%}"
   local italic="%{$(ansi-italics)%}"
 
-  local time_fmt="${ltgrey}[%D %*]$end"
-  local followup_type="$ltgrey→%_←$end"
+  local time_fmt="${ltgrey}[%D{%Y–%m–%d %H:%M:%S}]$end"
+  local followup_type="$ltgrey→%3_←$end"
 
   local prompt_header="  $ltred%n@%m$end  $ltblue%~$end" 
 
@@ -92,32 +93,42 @@ function set-prompt {
 
   local git_branch=''
   local git_number=''
-	local git_prompt=''
+  local git_prompt=''
+
+  local non_zero="%(?..  $red%?↲$end)"
+
   if test-git; then
-		git_number="$(git diff --name-only | wc -l)"
-    git_branch="$(git rev-parse --abbrev-ref HEAD)"
-		if [[ $git_number == 0 ]]; then
-			git_prompt="  $ltgrey±0 $git_branch$end"
-		else
-			git_prompt="  $yellow±$git_number $git_branch$end"
-		fi
+    git_number="$(git status -s | wc -l)"
+    git_branch="$(git symbolic-ref -q --short HEAD)"
+    if [[ $git_number == 0 ]]; then
+      git_prompt="  $ltgrey±0 $git_branch$end"
+    else
+      git_prompt="  $yellow±$git_number $git_branch$end"
+    fi
   fi
 
-	case "$1" in
-		(left)
-			PS1="$nl$prompt_header$git_prompt$nl$main_prompt"
-			PS2="$followup_prompt"
-		;;
-		(right)
-			RPS1="$time_fmt"
-			RPS2="$followup_type"
-		;;
-		(*) ;;
-	esac
+  case "$1" in
+    (left)
+      PS1="$prompt_header$git_prompt$non_zero$nl$main_prompt"
+      PS2="$followup_prompt"
+    ;;
+    (right)
+      RPS1="$time_fmt"
+      RPS2="$followup_type"
+    ;;
+    (*) ;;
+  esac
 
 }
 
+first_command_run='true'
+
 function precmd {
+  if [[ $first_command_run == 'true' ]]; then
+    first_command_run='false'
+  else
+    print
+  fi
   set-prompt left
   set-prompt right
 }
